@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Кинопортал</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+    
+</head>
+<body>
+    <div class="hero">
+        <h1 class="hero-title">Добро пожаловать в мир кино</h1>
+        <p class="hero-subtitle">Тысячи фильмов и сериалов в HD качестве</p>
+    </div>
+
+    <div class="search-section">
+        <form method="get" class="search-container">
+            <input
+                type="text"
+                name="query"
+                class="search-input"
+                placeholder="Поиск фильмов по названию или описанию..."
+                value="{{ search_form.query.value|default:'' }}"
+            >
+            <button type="submit" class="search-btn">Найти</button>
+        </form>
+    </div>
+
+    <div class="filter-section">
+        <form method="get" class="filter-container">
+            {% if search_form.query.value %}
+                <input type="hidden" name="query" value="{{ search_form.query.value }}">
+            {% endif %}
+    
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Жанр</label>
+                    {{ filter_form.genre }}
+                </div>
+    
+                <div class="filter-group">
+                    <label class="filter-label">Страна</label>
+                    {{ filter_form.country }}
+                </div>
+    
+                <div class="filter-group">
+                    <label class="filter-label">Возраст</label>
+                    {{ filter_form.age }}
+                </div>
+    
+                <div class="filter-group">
+                    <label class="filter-label">Сортировка</label>
+                    {{ filter_form.sort_by }}
+                </div>
+            </div>
+    
+            <div class="filter-buttons">
+                <button type="submit" class="btn btn-primary">Применить</button>
+                <a href="{% url 'home' %}" class="btn btn-secondary">Сбросить</a>
+            </div>
+        </form>
+    </div>
+    <div class="movies-section">
+        <div class="section-header">
+            <h2 class="section-title">Фильмы</h2>
+            <span style="color: rgba(71, 47, 47, 0.6);">
+                Найдено: {{ total_movies }}
+            </span>
+        </div>
+    
+        <div class="movies-grid">
+            {% for movie in movies %}
+            <a href="{% url 'movie_detail' movie.slug %}" class="movie-card">
+    
+                <div class="movie-poster-container">
+                    <img src="{{ movie.image.url }}" alt="{{ movie.title }}" class="movie-poster">
+    
+                    <span class="rating-badge">{{ movie.age }}</span>
+    
+                    <div class="movie-overlay">
+                        <div class="play-btn">▶️</div>
+                    </div>
+                </div>
+    
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+    
+                    <div class="movie-meta">
+                        <span class="meta-item">Год {{ movie.year }}</span>
+                        <span class="meta-item">{{ movie.time }} ч</span>
+                    </div>
+    
+                    <div class="movie-genres">
+                        {% for genre in movie.genres.all|slice:":3" %}
+                            <span class="genre-tag">{{ genre.genre }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+    
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
