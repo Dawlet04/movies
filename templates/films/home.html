@@ -10,6 +10,14 @@
     
 </head>
 <body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="{% url 'register' %}" class="reg-btn">
+                Регистрация
+            </a>
+            
+        </div>
+    </header>
     <div class="hero">
         <h1 class="hero-title">Добро пожаловать в мир кино</h1>
         <p class="hero-subtitle">Тысячи фильмов и сериалов в HD качестве</p>
@@ -103,6 +111,39 @@
             {% endfor %}
         </div>
     </div>
+    <nav class="pagination-container">
+    {% if movies.has_other_pages %}
+        <ul class="pagination">
 
+            {# Кнопка «Назад» #}
+            {% if movies.has_previous %}
+                <li class="page-item">
+                    <a href="?page={{ movies.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">«</a>
+                </li>
+            {% endif %}
+
+            {# Логика вывода номеров #}
+            {% for num in movies.paginator.page_range %}
+                {% if movies.number == num %}
+                    {# Текущая страница #}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > movies.number|add:'-3' and num < movies.number|add:'3' %}
+                    {# Ближайшие страницы (по 2 с каждой стороны) #}
+                    <li class="page-item">
+                        <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {# Кнопка «Вперед» #}
+            {% if movies.has_next %}
+                <li class="page-item">
+                    <a href="?page={{ movies.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">»</a>
+                </li>
+            {% endif %}
+
+        </ul>
+    {% endif %}
+</nav>
 </body>
 </html>

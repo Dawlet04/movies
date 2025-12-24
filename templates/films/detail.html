@@ -64,7 +64,7 @@
                         ▶️ Смотреть фильм
                     </a>
                     <a href="{{ movie.trailer }}" target="_blank" class="btn btn-secondary">
-                         Трейлер
+                        🎬 Трейлер
                     </a>
                 </div>
 
@@ -77,7 +77,7 @@
 
         
         <div class="video-player" id="player">
-            <h2> Смотреть онлайн</h2>
+            <h2>🎥 Смотреть онлайн</h2>
             <div class="video-container">
                 <video controls controlsList="nodownload" poster="{{ movie.image.url }}">
                     <source src="{{ movie.film.url }}" type="video/mp4">
@@ -92,10 +92,10 @@
             <h2 class="section-title"> В главных ролях</h2>
             <div class="actors-grid">
                 {% for actor in movie.actors.all %}
-                <div class="actor-card">
+                <a href="{% url 'actors' actor.slug %}" class="actor-card">
                     <img src="{{ actor.image.url }}" alt="{{ actor.full_name }}" class="actor-image">
                     <div class="actor-name">{{ actor.full_name }}</div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -104,7 +104,7 @@
         
         {% if related_movies %}
         <div class="related-section">
-            <h2 class="section-title"> Похожие фильмы</h2>
+            <h2 class="section-title">🎬 Похожие фильмы</h2>
             <div class="related-grid">
                 {% for related in related_movies %}
                 <a href="{% url 'movie_detail' related.slug %}" class="related-card">

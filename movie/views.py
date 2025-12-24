@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .models import Movie, Genres, Countries
+from .models import Movie, Genres, Countries, Actors
 from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm
 
 
@@ -65,4 +65,13 @@ def movie_detail(request, slug):
     return render(request, 'films/detail.html', {
         'movie': movie,
         'related_movies': related_movies
+    })
+
+def actors(request, slug):
+    actor = get_object_or_404(Actors, slug=slug)
+    movies = actor.movie_set.all()  # Фильмы с этим актёром
+    
+    return render(request, 'films/actors.html', {
+        'actor': actor,
+        'movies': movies,  # Опционально, если хотите отдельно
     })
