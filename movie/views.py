@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Movie, Genres, Countries, Actors
-from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm
+from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm, CustomUser
 
 
 
@@ -75,3 +75,7 @@ def actors(request, slug):
         'actor': actor,
         'movies': movies,  # Опционально, если хотите отдельно
     })
+
+def user(request):
+    user = get_object_or_404(CustomUser)
+    

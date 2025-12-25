@@ -54,10 +54,14 @@
                 </div>
 
                 <div class="movie-genres">
+                    <a href="{{  }}" target="_blank" class="btn btn-secondary">
+                        🎬 Трейлер
+                    
                     {% for genre in movie.genres.all %}
                         <span class="genre-tag">{{ genre.genre }}</span>
                     {% endfor %}
                 </div>
+            </a>
 
                 <div class="action-buttons">
                     <a href="#player" class="btn btn-primary">
