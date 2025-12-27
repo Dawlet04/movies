@@ -3,8 +3,8 @@ from django.contrib.auth import login
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Movie, Genres, Countries, Actors
-from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm
-
+from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm, ProfileEditForm
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
@@ -75,3 +75,31 @@ def actors(request, slug):
         'actor': actor,
         'movies': movies,  # Опционально, если хотите отдельно
     })
+
+
+@login_required
+def profile(request):
+    """Страница профиля пользователя"""
+    user = request.user
+    
+    context = {
+        'user': user,
+    }
+    
+    return render(request, 'films/profile.html', context)
+
+
+@login_required
+def profile_edit(request):
+    """Редактирование профиля"""
+    user = request.user
+    
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileEditForm(instance=user)
+    
+    return render(request, 'films/profile_edit.html', {'form': form})

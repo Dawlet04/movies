@@ -15,6 +15,22 @@
                 ← Назад к каталогу
             </a>
             <div class="logo">🎬 КИНОПОРТАЛ</div>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="reg-btn">
+                    👤 {{ user.username }}
+                </a>
+            {% else %}
+                <a href="{% url 'register' %}" class="reg-btn">
+                    Регистрация
+                </a>
+            {% endif %}
+        </div>
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="back-btn">
+                ← Назад к каталогу
+            </a>
+            <div class="logo">🎬 КИНОПОРТАЛ</div>
         </div>
     </header>
 

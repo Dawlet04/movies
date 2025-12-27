@@ -151,3 +151,37 @@ class MovieFilterForm(forms.Form):
         choices=SORT_OPTIONS,
         widget=forms.Select(attrs={'class': 'filter-select'})  
     )
+
+    class ProfileEditForm(forms.ModelForm):
+        class Meta:
+            model = CustomUser
+        fields = ['username', 'email', 'phone_num', 'photo', 'card_number']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Имя пользователя'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'email@example.com'
+            }),
+            'phone_num': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '+998901234567'
+            }),
+            'photo': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+            'card_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '9860xxxxyyyyzzzz'
+            }),
+        }
+    
+    def clean_phone_num(self):
+        phone = self.cleaned_data.get('phone_num')
+        if phone and not phone.startswith('+998'):
+            raise forms.ValidationError('Номер должен начинаться с +998')
+        if phone and len(phone) != 13:
+            raise forms.ValidationError('Номер должен содержать 13 символов')
+        return phone
