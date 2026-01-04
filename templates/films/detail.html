@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,60 +10,45 @@
     <link rel="stylesheet" href="{% static 'css/detail.css' %}">
 </head>
 <body>
-    
     <header class="header">
         <div class="nav-container">
-            <a href="{% url 'home' %}" class="back-btn">
-                ← Назад к каталогу
-            </a>
+            <a href="{% url 'home' %}" class="back-btn">← Главная</a>
             <div class="logo">🎬 КИНОПОРТАЛ</div>
             
-            {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="reg-btn">
-                    👤 {{ user.username }}
-                </a>
-            {% else %}
-                <a href="{% url 'register' %}" class="reg-btn">
-                    Регистрация
-                </a>
-            {% endif %}
-        </div>
-        <div class="nav-container">
-            <a href="{% url 'home' %}" class="back-btn">
-                ← Назад к каталогу
-            </a>
-            <div class="logo">🎬 КИНОПОРТАЛ</div>
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="nav-link profile-btn">
+                        👤 {{ user.username }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="nav-link register-btn">
+                        📝 Регистрация
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </header>
-
     
     <div class="movie-hero">
         <img src="{{ movie.image.url }}" alt="{{ movie.title }}" class="hero-backdrop">
         <div class="hero-gradient"></div>
     </div>
 
-   
     <div class="movie-content">
         <div class="movie-main">
-            
             <div class="movie-poster-wrapper">
                 <img src="{{ movie.image.url }}" alt="{{ movie.title }}" class="movie-poster">
                 <span class="rating-badge">{{ movie.age }}</span>
             </div>
 
-            
             <div class="movie-info">
                 <h1 class="movie-title">{{ movie.title }}</h1>
 
                 <div class="movie-meta">
+                    <span class="meta-item">📅 <strong>{{ movie.year }}</strong></span>
+                    <span class="meta-item">⏱️ <strong>{{ movie.time }} ч</strong></span>
                     <span class="meta-item">
-                         <strong>{{ movie.year }}</strong>
-                    </span>
-                    <span class="meta-item">
-                         <strong>{{ movie.time }} ч</strong>
-                    </span>
-                    <span class="meta-item">
-                         <strong>
+                        🌍 <strong>
                             {% for country in movie.countries.all %}
                                 {{ country.name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
@@ -70,32 +57,24 @@
                 </div>
 
                 <div class="movie-genres">
-                    <a href="{{  }}" target="_blank" class="btn btn-secondary">
-                        🎬 Трейлер
-                    
                     {% for genre in movie.genres.all %}
                         <span class="genre-tag">{{ genre.genre }}</span>
                     {% endfor %}
                 </div>
-            </a>
 
                 <div class="action-buttons">
-                    <a href="#player" class="btn btn-primary">
-                        ▶️ Смотреть фильм
-                    </a>
-                    <a href="{{ movie.trailer }}" target="_blank" class="btn btn-secondary">
-                        🎬 Трейлер
-                    </a>
+                    <a href="#player" class="btn btn-primary">▶️ Смотреть фильм</a>
+                    <a href="{{ movie.trailer }}" target="_blank" class="btn btn-secondary">🎬 Трейлер</a>
                 </div>
 
                 <div class="movie-description">
-                    <h2> Описание</h2>
+                    <h2>📖 Описание</h2>
                     <p>{{ movie.description }}</p>
                 </div>
             </div>
         </div>
 
-        
+        <!-- Video Player -->
         <div class="video-player" id="player">
             <h2>🎥 Смотреть онлайн</h2>
             <div class="video-container">
@@ -106,7 +85,7 @@
             </div>
         </div>
 
-    
+        <!-- Actors -->
         {% if movie.actors.all %}
         <div class="actors-section">
             <h2 class="section-title"> В главных ролях</h2>
@@ -121,7 +100,52 @@
         </div>
         {% endif %}
 
-        
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h2 class="section-title"> Комментарии ({{ comments.count }})</h2>
+
+
+<!-- Comment Form -->
+            {% if user.is_authenticated %}
+                <div class="comment-form-wrapper">
+                    <form method="post" class="comment-form">
+                        {% csrf_token %}
+                        {{ form.text }}
+                        <button type="submit" class="btn btn-primary">📝 Оставить комментарий</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="comment-login-prompt">
+                    <p>Чтобы оставить комментарий, <a href="{% url 'register' %}">зарегистрируйтесь</a></p>
+                </div>
+            {% endif %}
+
+            <!-- Comments List -->
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            {% if comment.user.photo %}
+                                <img src="{{ comment.user.photo.url }}" alt="{{ comment.user.username }}" class="comment-avatar">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ comment.user.username }}&size=40&background=667eea&color=fff" alt="{{ comment.user.username }}" class="comment-avatar">
+                            {% endif %}
+                            <span class="comment-username">{{ comment.user.username }}</span>
+                        </div>
+                        <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <div class="comment-text">{{ comment.text }}</div>
+                </div>
+                {% empty %}
+                <div class="no-comments">
+                    <p>Пока нет комментариев. Будьте первым!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Related Movies -->
         {% if related_movies %}
         <div class="related-section">
             <h2 class="section-title">🎬 Похожие фильмы</h2>

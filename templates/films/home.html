@@ -6,39 +6,34 @@
     <title>Главная - Кинопортал</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
-
-    
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="nav-container">
-            <a href="{% url 'home' %}" class="back-btn">
-                ← Назад к каталогу
-            </a>
             <div class="logo">🎬 КИНОПОРТАЛ</div>
             
-            {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="reg-btn">
-                    👤 {{ user.username }}
-                </a>
-            {% else %}
-                <a href="{% url 'register' %}" class="reg-btn">
-                    Регистрация
-                </a>
-            {% endif %}
-        </div>
-        <div class="nav-container">
-            <a href="{% url 'register' %}" class="reg-btn">
-                Регистрация
-            </a>
-            
+            <div class="nav-right">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="reg-btn">
+                        👤 {{ user.username }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="reg-btn">
+                        👤 Регистрация
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </header>
+
+    <!-- Hero Section -->
     <div class="hero">
         <h1 class="hero-title">Добро пожаловать в мир кино</h1>
         <p class="hero-subtitle">Тысячи фильмов и сериалов в HD качестве</p>
     </div>
 
+    <!-- Search -->
     <div class="search-section">
         <form method="get" class="search-container">
             <input
@@ -48,10 +43,11 @@
                 placeholder="Поиск фильмов по названию или описанию..."
                 value="{{ search_form.query.value|default:'' }}"
             >
-            <button type="submit" class="search-btn">Найти</button>
+            <button type="submit" class="search-btn">🔍 Найти</button>
         </form>
     </div>
 
+    <!-- Filters -->
     <div class="filter-section">
         <form method="get" class="filter-container">
             {% if search_form.query.value %}
@@ -86,80 +82,84 @@
             </div>
         </form>
     </div>
+
+    <!-- Movies Section -->
     <div class="movies-section">
         <div class="section-header">
-            <h2 class="section-title">Фильмы</h2>
-            <span style="color: rgba(71, 47, 47, 0.6);">
+            <h2 class="section-title">🎬 Фильмы</h2>
+            <span style="color: rgba(255, 255, 255, 0.6); font-size: 1em;">
                 Найдено: {{ total_movies }}
             </span>
         </div>
     
-        <div class="movies-grid">
-            {% for movie in movies %}
-            <a href="{% url 'movie_detail' movie.slug %}" class="movie-card">
-    
-                <div class="movie-poster-container">
-                    <img src="{{ movie.image.url }}" alt="{{ movie.title }}" class="movie-poster">
-    
-                    <span class="rating-badge">{{ movie.age }}</span>
-    
-                    <div class="movie-overlay">
-                        <div class="play-btn">▶️</div>
+        {% if movies %}
+            <div class="movies-grid">
+                {% for movie in movies %}
+                <a href="{% url 'movie_detail' movie.slug %}" class="movie-card">
+                    <div class="movie-poster-container">
+                        <img src="{{ movie.image.url }}" alt="{{ movie.title }}" class="movie-poster">
+                        <span class="rating-badge">{{ movie.age }}</span>
+                        <div class="movie-overlay">
+                            <div class="play-btn">▶️</div>
+                        </div>
                     </div>
-                </div>
-    
-                <div class="movie-info">
-                    <h3 class="movie-title">{{ movie.title }}</h3>
-    
-                    <div class="movie-meta">
-                        <span class="meta-item">Год {{ movie.year }}</span>
-                        <span class="meta-item">{{ movie.time }} ч</span>
+        
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title }}</h3>
+        
+                        <div class="movie-meta">
+                            <span class="meta-item">{{ movie.year }}</span>
+                            <span class="meta-item">{{ movie.time }} ч</span>
+                        </div>
+        
+                        <div class="movie-genres">
+                            {% for genre in movie.genres.all|slice:":3" %}
+                                <span class="genre-tag">{{ genre.genre }}</span>
+                            {% endfor %}
+                        </div>
                     </div>
-    
-                    <div class="movie-genres">
-                        {% for genre in movie.genres.all|slice:":3" %}
-                            <span class="genre-tag">{{ genre.genre }}</span>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if movies.has_other_pages %}
+            <div class="pagination">
+                <div class="pagination-container">
+                    <!-- Previous Button -->
+                    {% if movies.has_previous %}
+                        <a href="?page={{ movies.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="page-link">◀️ Назад</a>
+                    {% endif %}
+                    
+                    <!-- Page Numbers -->
+                    <div class="page-numbers">
+                        {% for num in movies.paginator.page_range %}
+                            {% if movies.number == num %}
+                                <span class="page-number active">{{ num }}</span>
+                            {% elif num > movies.number|add:'-3' and num < movies.number|add:'3' %}
+                                <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                                   class="page-number">{{ num }}</a>
+                            {% endif %}
                         {% endfor %}
                     </div>
+
+                    <!-- Next Button -->
+                    {% if movies.has_next %}
+                        <a href="?page={{ movies.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="page-link">Вперёд ▶️</a>
+                    {% endif %}
                 </div>
-    
-            </a>
-            {% endfor %}
-        </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <div class="no-results">
+                <div class="no-results-icon">🎬</div>
+                <p class="no-results-text">По вашему запросу ничего не найдено</p>
+            </div>
+        {% endif %}
     </div>
-    <nav class="pagination-container">
-    {% if movies.has_other_pages %}
-        <ul class="pagination">
 
-            {# Кнопка «Назад» #}
-            {% if movies.has_previous %}
-                <li class="page-item">
-                    <a href="?page={{ movies.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">«</a>
-                </li>
-            {% endif %}
-
-            {# Логика вывода номеров #}
-            {% for num in movies.paginator.page_range %}
-                {% if movies.number == num %}
-                    {# Текущая страница #}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                {% elif num > movies.number|add:'-3' and num < movies.number|add:'3' %}
-                    {# Ближайшие страницы (по 2 с каждой стороны) #}
-                    <li class="page-item">
-                        <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">{{ num }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-
-            {# Кнопка «Вперед» #}
-            {% if movies.has_next %}
-                <li class="page-item">
-                    <a href="?page={{ movies.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">»</a>
-                </li>
-            {% endif %}
-
-        </ul>
-    {% endif %}
-</nav>
 </body>
 </html>

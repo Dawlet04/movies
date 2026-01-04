@@ -1,15 +1,17 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .models import Movie, Genres, Countries, Actors
-<<<<<<< HEAD
-from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm, ProfileEditForm
-from django.contrib.auth.decorators import login_required
-=======
-from .forms import CustomUserRegistrationForm, MovieSearchForm, MovieFilterForm, CustomUser
-
->>>>>>> c4c238278a8c777ad6de28e085f51903ce45a0d8
+from .models import Movie, Genres, Countries, Actors, CustomUser, Comment
+from .forms import (
+    CustomUserRegistrationForm, 
+    MovieSearchForm, 
+    MovieFilterForm, 
+    ProfileEditForm,
+    CommentForm
+)
 
 
 def home(request):
@@ -19,9 +21,11 @@ def home(request):
     if search_form.is_valid():
         query = search_form.cleaned_data.get('query')
         if query:
-            movies = movies.filter(Q(title__icontains=query)|Q(description__icontains=query))
+            movies = movies.filter(
+                Q(title__icontains=query) | 
+                Q(description__icontains=query)
+            )
     
-
     filter_form = MovieFilterForm(request.GET or None)
     if filter_form.is_valid():
         data = filter_form.cleaned_data
@@ -29,20 +33,19 @@ def home(request):
         if data.get('genre'):
             movies = movies.filter(genres=data['genre'])
         if data.get('country'):
-            movies = movies.filter(counries=data['country'])  
+            movies = movies.filter(countries=data['country'])
         if data.get('age'):
             movies = movies.filter(age=data['age'])
         if data.get('sort_by'):
             movies = movies.order_by(data['sort_by'])
     
- 
     paginator = Paginator(movies, 12)
-    page_number = request.GET.get('page', 1)  
-    movies_page = paginator.get_page(page_number)  
+    page_number = request.GET.get('page', 1)
+    movies_page = paginator.get_page(page_number)
     
     context = {
         'movies': movies_page,
-        'total_movies': paginator.count,  
+        'total_movies': paginator.count,
         'search_form': search_form,
         'filter_form': filter_form,
     }
@@ -67,25 +70,40 @@ def movie_detail(request, slug):
         genres__in=movie.genres.all()
     ).exclude(id=movie.id).distinct()[:6]
     
+    comments = movie.comments.all()
+    
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.movie = movie
+                comment.user = request.user
+                comment.save()
+                return redirect('movie_detail', slug=slug)
+        else:
+            return redirect('login')
+    else:
+        form = CommentForm()
+    
     return render(request, 'films/detail.html', {
         'movie': movie,
-        'related_movies': related_movies
+        'related_movies': related_movies,
+        'comments': comments,
+        'form': form,
     })
+
 
 def actors(request, slug):
     actor = get_object_or_404(Actors, slug=slug)
-    movies = actor.movie_set.all()  # Фильмы с этим актёром
     
     return render(request, 'films/actors.html', {
         'actor': actor,
-        'movies': movies,  # Опционально, если хотите отдельно
     })
 
-<<<<<<< HEAD
 
 @login_required
 def profile(request):
-    """Страница профиля пользователя"""
     user = request.user
     
     context = {
@@ -97,7 +115,6 @@ def profile(request):
 
 @login_required
 def profile_edit(request):
-    """Редактирование профиля"""
     user = request.user
     
     if request.method == 'POST':
@@ -109,8 +126,3 @@ def profile_edit(request):
         form = ProfileEditForm(instance=user)
     
     return render(request, 'films/profile_edit.html', {'form': form})
-=======
-def user(request):
-    user = get_object_or_404(CustomUser)
-    
->>>>>>> c4c238278a8c777ad6de28e085f51903ce45a0d8

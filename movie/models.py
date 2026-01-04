@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from .utils import generate_unique_slug
 
 
+
 class CustomUser(AbstractUser):
     phone_num = models.CharField(max_length=13, help_text='+998XXXXXXX')
     photo = models.ImageField(upload_to='users/')
@@ -99,3 +100,18 @@ class Movie(models.Model):
     class Meta:
         verbose_name=  'Фильм'
         verbose_name_plural  = 'Фильмы'
+
+
+class Comment(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ['-created_at']  # Новые комментарии первыми
+    
+    def __str__(self):
+        return f'{self.user.username} - {self.movie.title}'

@@ -719,3 +719,14 @@ select[id^="id_"] option {
     .page-item .page-link:hover:not(.active) {
     background-color: #e9ecef;
     }
+    .profile-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.profile-btn:hover {
+    opacity: 0.9;
+}
